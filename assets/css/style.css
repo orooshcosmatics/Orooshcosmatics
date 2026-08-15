@@ -410,6 +410,7 @@ html:not([lang="en"]) .lang-toggle-ar{opacity:1;}
   width:100%;height:100%;object-fit:cover;object-position:top center;
   transition:transform .5s ease;
 }
+.product-visual img.obj-label{object-position:center 58%;}
 .product-card:hover .product-visual img{transform:scale(1.06);}
 .visual-placeholder{
   display:flex;align-items:center;justify-content:center;

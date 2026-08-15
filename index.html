@@ -375,7 +375,9 @@
       <!-- No Acne -->
       <article class="product-card reveal" data-id="no-acne" data-category="face">
         <span class="badge badge-hot" data-i18n="p.noacne.badge"></span>
-        <div class="product-visual visual-placeholder glow"></div>
+        <div class="product-visual">
+          <img src="assets/img/products/no-acne.jpg" alt="NO ACNE" class="obj-label">
+        </div>
         <div class="product-body">
           <h3 class="product-name-en">NO ACNE</h3>
           <p class="product-name-ar" data-i18n="p.noacne.local"></p>
@@ -394,10 +396,18 @@
           <p class="product-usage"><strong data-i18n="product.usageLabel"></strong> <span data-i18n="p.noacne.usage"></span></p>
 
           <div class="product-footer">
-            <div class="product-price price-ask" data-i18n="product.priceAsk"></div>
-            <a class="btn btn-whatsapp btn-block" target="_blank" rel="noopener"
-               href="https://wa.me/256767343558?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20%D8%A3%D8%AD%D8%A8%20%D8%A3%D8%B3%D8%A3%D9%84%20%D8%B9%D9%86%20%D8%B3%D8%B9%D8%B1%20%D9%88%D8%AA%D9%88%D9%81%D8%B1%20%D9%85%D9%86%D8%AA%D8%AC%20No%20Acne%20%D8%A3%D8%B2%D9%8A%D9%84%D9%8A%D9%83%20%D8%A3%D8%B3%D9%8A%D8%AF%2010%25%20%F0%9F%8C%B8">
-              <span data-i18n="p.noacne.ask"></span>
+            <div class="product-price" data-price="30000">30,000 <small>UGX</small></div>
+            <div class="qty-stepper" data-qty="1">
+              <button class="qty-btn minus" aria-label="-">−</button>
+              <span class="qty-val">1</span>
+              <button class="qty-btn plus" aria-label="+">+</button>
+            </div>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-add" data-price="30000"><span data-i18n="product.add"></span></button>
+            <a class="btn btn-whatsapp-outline" target="_blank" rel="noopener"
+               href="https://wa.me/256767343558?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20%D8%A3%D8%AD%D8%A8%20%D8%A3%D8%B7%D9%84%D8%A8%20%D9%85%D9%86%D8%AA%D8%AC%20No%20Acne%20%D8%AD%D9%85%D8%B6%20%D8%A7%D9%84%D8%A3%D8%B2%D9%8A%D9%84%D9%8A%D9%83%2010%25%20%2830%2C000%20UGX%29%20%F0%9F%8C%B8">
+              <span data-i18n="product.orderNow"></span>
             </a>
           </div>
         </div>
@@ -612,7 +622,7 @@
       <div class="social-row">
         <a href="https://instagram.com/oroosh.cosmetics" target="_blank" rel="noopener" aria-label="Instagram" class="social-btn">📷</a>
         <a href="#" aria-label="Facebook" class="social-btn">📘</a>
-        <a href="#" aria-label="TikTok" class="social-btn">🎵</a>
+        <a href="https://www.tiktok.com/@oroosh" target="_blank" rel="noopener" aria-label="TikTok" class="social-btn">🎵</a>
       </div>
     </div>
 

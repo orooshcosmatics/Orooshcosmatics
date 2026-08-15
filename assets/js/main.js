@@ -171,6 +171,12 @@
   cartClose.addEventListener("click", closeCart);
   cartOverlay.addEventListener("click", closeCart);
 
+  function bumpCartBadge() {
+    cartCountEl.classList.remove("bump");
+    void cartCountEl.offsetWidth;
+    cartCountEl.classList.add("bump");
+  }
+
   function renderCart() {
     var ids = Object.keys(cart);
     var totalQty = 0;
@@ -231,7 +237,7 @@
       }
 
       renderCart();
-      openCart();
+      bumpCartBadge();
 
       var addLabel = btn.querySelector("[data-i18n]");
       var originalKey = addLabel ? addLabel.getAttribute("data-i18n") : null;

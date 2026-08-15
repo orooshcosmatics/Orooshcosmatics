@@ -635,6 +635,12 @@ html:not([lang="en"]) .lang-toggle-ar{opacity:1;}
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 2px 6px rgba(0,0,0,.2);
 }
+.cart-count.bump{animation:cart-bump .4s ease;}
+@keyframes cart-bump{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.45);}
+  100%{transform:scale(1);}
+}
 
 .cart-overlay{
   position:fixed;inset:0;background:rgba(43,22,32,.5);z-index:250;

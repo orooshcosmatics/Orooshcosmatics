@@ -2,6 +2,58 @@
   "use strict";
 
   var WHATSAPP_NUMBER = "256767343558";
+  var LANG_KEY = "oroosh_lang";
+  var I18N = window.OROOSH_I18N || { ar: {}, en: {} };
+
+  /* ---------- Language engine ---------- */
+  function getSavedLang() {
+    try {
+      return localStorage.getItem(LANG_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+  function saveLang(lang) {
+    try {
+      localStorage.setItem(LANG_KEY, lang);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function applyLanguage(lang) {
+    var dict = I18N[lang] || I18N.ar;
+    document.documentElement.setAttribute("lang", lang);
+    document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n");
+      if (dict[key] !== undefined) {
+        el.textContent = dict[key];
+      }
+    });
+
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && dict["meta.desc"]) metaDesc.setAttribute("content", dict["meta.desc"]);
+    if (dict["meta.title"]) document.title = dict["meta.title"];
+
+    document.querySelectorAll(".filter-tab").forEach(function (tab) {
+      tab.classList.toggle("active", tab.dataset.filter === (window.__oroosh_filter || "all"));
+    });
+
+    renderCart();
+    currentLang = lang;
+  }
+
+  var currentLang = "ar";
+  var langToggle = document.getElementById("langToggle");
+  if (langToggle) {
+    langToggle.addEventListener("click", function () {
+      var next = currentLang === "ar" ? "en" : "ar";
+      saveLang(next);
+      applyLanguage(next);
+    });
+  }
 
   /* ---------- Mobile nav ---------- */
   var navToggle = document.getElementById("navToggle");
@@ -50,6 +102,22 @@
     });
   }
 
+  /* ---------- Category filter ---------- */
+  window.__oroosh_filter = "all";
+  document.querySelectorAll(".filter-tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      var filter = tab.dataset.filter;
+      window.__oroosh_filter = filter;
+      document.querySelectorAll(".filter-tab").forEach(function (t) {
+        t.classList.toggle("active", t === tab);
+      });
+      document.querySelectorAll(".product-card").forEach(function (card) {
+        var show = filter === "all" || card.dataset.category === filter;
+        card.classList.toggle("hidden", !show);
+      });
+    });
+  });
+
   /* ---------- Quantity steppers ---------- */
   document.querySelectorAll(".qty-stepper").forEach(function (stepper) {
     var valEl = stepper.querySelector(".qty-val");
@@ -73,7 +141,6 @@
   /* ---------- Cart ---------- */
   var cart = {}; // id -> { name, price, qty }
 
-  var cartFab = document.getElementById("cartFab");
   var cartToggle = document.getElementById("cartToggle");
   var cartClose = document.getElementById("cartClose");
   var cartDrawer = document.getElementById("cartDrawer");
@@ -82,6 +149,11 @@
   var cartCountEl = document.getElementById("cartCount");
   var cartTotalEl = document.getElementById("cartTotal");
   var confirmOrderBtn = document.getElementById("confirmOrder");
+
+  function t(key) {
+    var dict = I18N[currentLang] || I18N.ar;
+    return dict[key] !== undefined ? dict[key] : key;
+  }
 
   function formatUGX(n) {
     return n.toLocaleString("en-US") + " UGX";
@@ -105,8 +177,7 @@
     var totalPrice = 0;
 
     if (ids.length === 0) {
-      cartItemsEl.innerHTML =
-        '<p class="cart-empty">لسه ماضفتيش أي منتج، اختاري منتجاتك من المتجر 🛍️</p>';
+      cartItemsEl.innerHTML = '<p class="cart-empty">' + t("cart.empty") + "</p>";
     } else {
       cartItemsEl.innerHTML = "";
       ids.forEach(function (id) {
@@ -126,7 +197,9 @@
           "</p></div>" +
           '<button class="cart-item-remove" data-id="' +
           id +
-          '">إزالة</button>';
+          '">' +
+          t("cart.remove") +
+          "</button>";
         cartItemsEl.appendChild(row);
       });
 
@@ -146,7 +219,7 @@
     btn.addEventListener("click", function () {
       var card = btn.closest(".product-card");
       var id = card.dataset.id;
-      var name = btn.dataset.name;
+      var name = card.querySelector(".product-name-en").textContent.trim();
       var price = parseInt(btn.dataset.price, 10);
       var stepper = card.querySelector(".qty-stepper");
       var qty = stepper ? parseInt(stepper.dataset.qty, 10) : 1;
@@ -160,9 +233,11 @@
       renderCart();
       openCart();
 
-      btn.textContent = "✓ تمت الإضافة";
+      var addLabel = btn.querySelector("[data-i18n]");
+      var originalKey = addLabel ? addLabel.getAttribute("data-i18n") : null;
+      if (addLabel) addLabel.textContent = t("product.added");
       setTimeout(function () {
-        btn.textContent = "🛒 أضف للطلب";
+        if (addLabel && originalKey) addLabel.textContent = t(originalKey);
       }, 1200);
     });
   });
@@ -170,11 +245,14 @@
   confirmOrderBtn.addEventListener("click", function () {
     var ids = Object.keys(cart);
     if (ids.length === 0) {
-      alert("اختاري منتج واحد على الأقل قبل تأكيد الطلب 🌸");
+      alert(t("cart.alertEmpty"));
       return;
     }
 
-    var lines = ["مرحبًا OROOSH COSMETICS 🌸", "حابة أأكد طلب:", ""];
+    var payMethodInput = document.querySelector('input[name="payMethod"]:checked');
+    var payMethodLabel = payMethodInput && payMethodInput.value === "cod" ? t("cod.label") : t("momo.label");
+
+    var lines = [t("wa.greeting"), t("wa.intro"), ""];
     var total = 0;
     ids.forEach(function (id) {
       var item = cart[id];
@@ -183,12 +261,13 @@
       lines.push("- " + item.name + " × " + item.qty + " = " + formatUGX(subtotal));
     });
     lines.push("");
-    lines.push("الإجمالي: " + formatUGX(total));
+    lines.push(t("wa.total") + ": " + formatUGX(total));
+    lines.push(t("wa.payment") + ": " + payMethodLabel);
     lines.push("");
-    lines.push("الاسم: ");
-    lines.push("المنطقة/العنوان: ");
+    lines.push(t("wa.name") + ": ");
+    lines.push(t("wa.address") + ": ");
     lines.push("");
-    lines.push("منتظرة تأكيدكم قبل الدفع 🙏");
+    lines.push(t("wa.closing"));
 
     var message = encodeURIComponent(lines.join("\n"));
     window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + message, "_blank");
@@ -202,7 +281,7 @@
       var text = momoNumber.textContent.trim();
       var done = function () {
         var original = copyBtn.textContent;
-        copyBtn.textContent = "✓ تم النسخ";
+        copyBtn.textContent = t("momo.copied");
         setTimeout(function () {
           copyBtn.textContent = original;
         }, 1500);
@@ -215,5 +294,7 @@
     });
   }
 
-  renderCart();
+  /* ---------- Init ---------- */
+  var initialLang = getSavedLang() || "ar";
+  applyLanguage(initialLang);
 })();
